@@ -28,7 +28,7 @@
 # AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
+# POSSIBILITY OF SUCFrameH DAMAGE.
 #
 ############################################################################
 
@@ -114,11 +114,11 @@ class PX4Visualizer(Node):
 
     def vehicle_local_position_callback(self, msg):
         # TODO: handle NED->ENU transformation 
-        self.vehicle_local_position[0] = msg.x
-        self.vehicle_local_position[1] = -msg.y
+        self.vehicle_local_position[0] = msg.y
+        self.vehicle_local_position[1] = msg.x
         self.vehicle_local_position[2] = -msg.z
-        self.vehicle_local_velocity[0] = msg.vx
-        self.vehicle_local_velocity[1] = -msg.vy
+        self.vehicle_local_velocity[0] = msg.vy
+        self.vehicle_local_velocity[1] = msg.vx
         self.vehicle_local_velocity[2] = -msg.vz
 
     def trajectory_setpoint_callback(self, msg):
@@ -129,7 +129,7 @@ class PX4Visualizer(Node):
     def create_arrow_marker(self, id, tail, vector):
         msg = Marker()
         msg.action = Marker.ADD
-        msg.header.frame_id = 'map'
+        msg.header.frame_id = 'x500_0/base_link/gpu_lidar'
         # msg.header.stamp = Clock().now().nanoseconds / 1000
         msg.ns = 'arrow'
         msg.id = id
@@ -154,7 +154,7 @@ class PX4Visualizer(Node):
         return msg
 
     def cmdloop_callback(self):
-        vehicle_pose_msg = vector2PoseMsg('map', self.vehicle_local_position, self.vehicle_attitude)
+        vehicle_pose_msg = vector2PoseMsg('x500_0/base_link/gpu_lidar', self.vehicle_local_position, self.vehicle_attitude)
         self.vehicle_pose_pub.publish(vehicle_pose_msg)
 
         # Publish time history of the vehicle path
@@ -163,7 +163,7 @@ class PX4Visualizer(Node):
         self.vehicle_path_pub.publish(self.vehicle_path_msg)
 
         # Publish time history of the vehicle path
-        setpoint_pose_msg = vector2PoseMsg('map', self.setpoint_position, self.vehicle_attitude)
+        setpoint_pose_msg = vector2PoseMsg('x500_0/base_link/gpu_lidar', self.setpoint_position, self.vehicle_attitude)
         self.setpoint_path_msg.header = setpoint_pose_msg.header
         self.setpoint_path_msg.poses.append(setpoint_pose_msg)
         self.setpoint_path_pub.publish(self.setpoint_path_msg)
