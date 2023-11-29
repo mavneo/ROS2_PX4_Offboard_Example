@@ -11,6 +11,8 @@ Panels:
         - /Marker1/Topic1
         - /Path1
         - /Path2
+        - /LaserScan1/Status1
+        - /PointCloud21/Status1
       Splitter Ratio: 0.5
     Tree Height: 907
   - Class: rviz_common/Selection
@@ -132,10 +134,70 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /px4_visualizer/setpoint_path
       Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz_default_plugins/LaserScan
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 0
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: LaserScan
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /lidar
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: ring
+      Class: rviz_default_plugins/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: ""
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Points
+      Topic: /lidar/points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 255; 255; 255
-    Fixed Frame: map
+    Fixed Frame: x500_0/base_link/gpu_lidar
     Frame Rate: 30
   Name: root
   Tools:
@@ -190,10 +252,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.795397937297821
+      Pitch: 0.295397937297821
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.6553981304168701
+      Yaw: 2.6553981304168701
     Saved: ~
 Window Geometry:
   Displays:
@@ -211,3 +273,4 @@ Window Geometry:
   Width: 924
   X: 72
   Y: 27
+
