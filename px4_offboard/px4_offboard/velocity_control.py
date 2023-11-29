@@ -49,7 +49,7 @@ from px4_msgs.msg import VehicleCommand
 from geometry_msgs.msg import Twist, Vector3
 from math import pi
 from std_msgs.msg import Bool
-
+from sensor_msgs.msg import PointCloud2  
 
 class OffboardControl(Node):
 
@@ -61,7 +61,12 @@ class OffboardControl(Node):
             history=QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
             depth=1
         )
-
+        qos_policy = QoSProfile(
+            reliability=QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT, 
+            history=QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+            depth=1
+            )
+ 
         #Create subscriptions
         self.status_sub = self.create_subscription(
             VehicleStatus,
@@ -86,6 +91,12 @@ class OffboardControl(Node):
             '/arm_message',
             self.arm_message_callback,
             qos_profile)
+        
+        #self.lidar_sub=self.create_subscription(
+         #   PointCloud2,
+          #  '/lidar/points',
+           # self.lidar_callback,
+            #qos_policy)
 
 
         #Create publishers
@@ -126,12 +137,12 @@ class OffboardControl(Node):
             "OFFBOARD": self.state_offboard
         }
         self.current_state = "IDLE"
-        self.last_state = self.current_state
 
+    #def lidar_callback(self, msg:PointCloud2):
+     # self.get_logger().info(msg)
 
     def arm_message_callback(self, msg):
         self.arm_message = msg.data
-        self.get_logger().info(f"Arm Message: {self.arm_message}")
 
     #callback function that arms, takes off, and switches to offboard mode
     #implements a finite state machine
@@ -141,24 +152,19 @@ class OffboardControl(Node):
             case "IDLE":
                 if(self.flightCheck and self.arm_message == True):
                     self.current_state = "ARMING"
-                    self.get_logger().info(f"Arming")
 
             case "ARMING":
                 if(not(self.flightCheck)):
                     self.current_state = "IDLE"
-                    self.get_logger().info(f"Arming, Flight Check Failed")
                 elif(self.arm_state == VehicleStatus.ARMING_STATE_ARMED and self.myCnt > 10):
                     self.current_state = "TAKEOFF"
-                    self.get_logger().info(f"Arming, Takeoff")
                 self.arm() #send arm command
 
             case "TAKEOFF":
                 if(not(self.flightCheck)):
                     self.current_state = "IDLE"
-                    self.get_logger().info(f"Takeoff, Flight Check Failed")
                 elif(self.nav_state == VehicleStatus.NAVIGATION_STATE_AUTO_TAKEOFF):
                     self.current_state = "LOITER"
-                    self.get_logger().info(f"Takeoff, Loiter")
                 self.arm() #send arm command
                 self.take_off() #send takeoff command
 
@@ -167,25 +173,19 @@ class OffboardControl(Node):
             case "LOITER": 
                 if(not(self.flightCheck)):
                     self.current_state = "IDLE"
-                    self.get_logger().info(f"Loiter, Flight Check Failed")
                 elif(self.nav_state == VehicleStatus.NAVIGATION_STATE_AUTO_LOITER):
                     self.current_state = "OFFBOARD"
-                    self.get_logger().info(f"Loiter, Offboard")
                 self.arm()
 
             case "OFFBOARD":
-                if(not(self.flightCheck) or self.arm_state == VehicleStatus.ARMING_STATE_DISARMED or self.failsafe == True):
+                if(not(self.flightCheck) or self.arm_state == VehicleStatus.ARMING_STATE_ARMED or self.failsafe == True):
                     self.current_state = "IDLE"
-                    self.get_logger().info(f"Offboard, Flight Check Failed")
                 self.state_offboard()
 
         if(self.arm_state != VehicleStatus.ARMING_STATE_ARMED):
             self.arm_message = False
 
-        if (self.last_state != self.current_state):
-            self.last_state = self.current_state
-            self.get_logger().info(self.current_state)
-
+        self.get_logger().info(self.current_state)
         self.myCnt += 1
 
     def state_init(self):
@@ -210,10 +210,6 @@ class OffboardControl(Node):
         self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
         self.offboardMode = True
 
-
-    
-
-        
 
     # Arms the vehicle
     def arm(self):
@@ -242,29 +238,21 @@ class OffboardControl(Node):
 
     #receives and sets vehicle status values 
     def vehicle_status_callback(self, msg):
-
-        if (msg.nav_state != self.nav_state):
-            self.get_logger().info(f"NAV_STATUS: {msg.nav_state}")
-        
-        if (msg.arming_state != self.arm_state):
-            self.get_logger().info(f"ARM STATUS: {msg.arming_state}")
-
-        if (msg.failsafe != self.failsafe):
-            self.get_logger().info(f"FAILSAFE: {msg.failsafe}")
-        
-        if (msg.pre_flight_checks_pass != self.flightCheck):
-            self.get_logger().info(f"FlightCheck: {msg.pre_flight_checks_pass}")
+        self.get_logger().info(f"NAV_STATUS: {msg.nav_state}")
+        self.get_logger().info(f"ARM STATUS: {msg.arming_state}")
+        # self.get_logger().info(f"FlightCheck: {msg.pre_flight_checks_pass}")
 
         self.nav_state = msg.nav_state
         self.arm_state = msg.arming_state
         self.failsafe = msg.failsafe
         self.flightCheck = msg.pre_flight_checks_pass
 
+    
 
     #receives Twist commands from Teleop and converts NED -> FLU
     def offboard_velocity_callback(self, msg):
         #implements NED -> FLU Transformation
-        self.velocity.x = -msg.linear.y
+        self.velocity.x = msg.linear.y
         self.velocity.y = msg.linear.x
         self.velocity.z = -msg.linear.z
         self.yaw = msg.angular.z
