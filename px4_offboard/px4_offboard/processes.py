@@ -20,7 +20,7 @@ commands = [
     #"cd ~/ws && source install/setup.bash && ros2 run ros_gz_bridge parameter_bridge lidar@sensor_msgs/msg/LaserScan@ignition.msgs.LaserScan"
 
     #Run ros_gz_bridge
-    "cd ~/ws && source install/setup.bash && ros2 run ros_gz_bridge parameter_bridge /lidar/points@sensor_msgs/msg/PointCloud2@ignition.msgs.PointCloudPacked"    
+    "cd ~/workspace/ROS_GZ && ros2 run ros_gz_bridge parameter_bridge /lidar/points@sensor_msgs/msg/PointCloud2@ignition.msgs.PointCloudPacked"    
     
 ]
 
