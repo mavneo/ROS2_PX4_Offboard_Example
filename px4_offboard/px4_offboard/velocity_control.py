@@ -92,11 +92,11 @@ class OffboardControl(Node):
             self.arm_message_callback,
             qos_profile)
         
-        self.lidar_sub=self.create_subscription(
-            PointCloud2,
-            '/lidar/points',
-            self.lidar_callback,
-            qos_policy)
+        #self.lidar_sub=self.create_subscription(
+            #PointCloud2,
+            #'/lidar/points',
+            #self.lidar_callback,
+            #qos_policy)
 
 
         #Create publishers
@@ -138,8 +138,8 @@ class OffboardControl(Node):
         }
         self.current_state = "IDLE"
 
-    def lidar_callback(self, msg:PointCloud2):
-        self.get_logger().info(msg)
+    #def lidar_callback(self, msg:PointCloud2):
+    #    self.get_logger().info(msg)
 
     def arm_message_callback(self, msg):
         self.arm_message = msg.data
@@ -266,7 +266,7 @@ class OffboardControl(Node):
         # Z (FLU) is -Z (NED)
         self.velocity.z = -msg.linear.z
 
-        # A conversion for angular z is done in the attitude_callback function(it's the '-' in front of self.trueYaw)
+        # A conversion for angular z is done in the attitude_callback function(it's the '-' in vlogfront of self.trueYaw)
         self.yaw = msg.angular.z
 
     #receives current trajectory values from drone and grabs the yaw value of the orientation
